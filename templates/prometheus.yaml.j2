@@ -1,0 +1,78 @@
+---
+
+global:
+  scrape_interval: 60s
+  evaluation_interval: 15s
+
+{% if promscale_ip is defined and promscale_ip|length %}
+### Promscale parameters ###
+remote_write:
+ - url: "http://{{ promscale_ip }}:9201/write"
+remote_read:
+ - url: "http://{{ promscale_ip }}:9201/read"
+{% endif %}
+
+scrape_configs:
+### Prometheus Metrics ###
+  - job_name: 'prometheus_metrics'
+    scrape_interval: 60s
+    static_configs:
+      - targets: ['{{ ansible_ssh_host }}:9090']
+#    basic_auth:
+#      username: 'admin'
+#      password: '{{ admin_password }}'
+
+{% if node_exporter_servers is defined and node_exporter_servers|length %}
+### Node Exporter Metrics ###
+  - job_name: 'node_exporter'
+    scrape_interval: 60s
+    static_configs:
+      - targets:
+        - {{ ansible_ssh_host }}:9100
+{% for server in node_exporter_servers %}
+        - {{ server }}
+{% endfor %}
+{% endif %}
+
+{% if icmp_ping_servers is defined and icmp_ping_servers|length %}
+### ICMP Ping Metrics ###
+  - job_name: 'blackbox-icmp'
+    scrape_interval: 60s
+    metrics_path: /probe
+    params:
+      module: [icmp-general] 
+    static_configs:
+      - targets:
+        - {{ ansible_ssh_host }}
+{% for server in icmp_ping_servers %}
+        - {{ server }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: {{ ansible_ssh_host }}:9115
+{% endif %}
+
+{% if http_check_servers is defined and http_check_servers|length %}
+### HTTP Check Metrics ###
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://{{ ansible_ssh_host }}:9090
+{% for server in http_check_servers %}
+        - {{ server }}
+{% endfor %}
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: {{ ansible_ssh_host }}:9115
+{% endif %}

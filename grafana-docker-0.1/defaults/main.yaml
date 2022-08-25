@@ -1,0 +1,12 @@
+---
+
+### Grafana vars ###
+grafana_version: 9.0.7
+build_dir: /tmp/grafana
+
+### Smtp vars ###
+smtp_host: mail.example.com:25
+smtp_user: grafana
+smtp_password: grafana
+smtp_from_email: grafana@example.com
+smtp_from_name: grafana

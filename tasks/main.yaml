@@ -1,0 +1,13 @@
+---
+
+- include: get_vars.yaml
+
+- name: Install Prometheus
+  block:
+
+  - include: directoies.yaml
+  - include: install.yaml
+
+  when: ansible_facts.services["prometheus.service"] is not defined
+
+- include: config.yaml

@@ -1,0 +1,10 @@
+FROM grafana/grafana:{{ grafana_version }}
+
+COPY grafana.ini /etc/grafana/grafana.ini
+COPY home.json /usr/share/grafana/public/dashboards/home.json
+
+COPY prometheus-dashboard.yml \
+     server-metrics-minimal.json \
+     server-metrics-compact.json \
+     blackbox-exporter-minimal.json \
+     /etc/grafana/provisioning/dashboards/

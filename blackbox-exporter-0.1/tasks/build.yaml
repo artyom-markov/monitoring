@@ -1,0 +1,42 @@
+---
+
+- name: Create build directory
+  ansible.builtin.file:
+    path: "{{ build_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Copy static files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ build_dir }}"
+  with_items:
+    - Dockerfile
+    - blackbox.yml
+
+- name: Remove blackbox container
+  community.general.docker_container:
+    name: blackbox
+    state: absent
+
+- name: Remove local image
+  community.docker.docker_image:
+    name: blackbox
+    tag: latest
+    state: absent
+    force_absent: yes
+
+- name: Build blackbox image
+  community.docker.docker_image:
+    name: blackbox
+    tag: latest
+    build:
+      path: "{{ build_dir }}"
+    source: build
+
+- name: Remove build directory
+  ansible.builtin.file:
+    path: "{{ build_dir }}"
+    state: absent

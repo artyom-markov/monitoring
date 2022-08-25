@@ -1,0 +1,17 @@
+---
+
+### Prometheus vars ###
+
+prometheus_version: 2.37.0
+admin_password: "$2b$12$.vTP1XZOOhrqnDhk3v6O/.L6F4GvzwNTjc5jhnbmmfp4OTQptnl5a"
+storage_tsdb_retention_time: 1d
+storage_tsdb_retention_size: 10GB
+
+### Metrics vars ###
+
+node_exporter_servers: {}
+icmp_ping_servers: {}
+http_check_servers: {}
+
+### Promscale parameters ###
+promscale_ip: {}

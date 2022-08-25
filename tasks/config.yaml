@@ -1,0 +1,26 @@
+---
+
+- name: Copy prometheus service file
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0640"
+  with_items:
+    - { src: "prometheus.service.j2", dest: "/etc/systemd/system/prometheus.service" }
+  notify: Restart Prometheus service
+
+
+- name: Copy prometheus config file
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: prometheus
+    group: prometheus
+    mode: "0644"
+  with_items:
+    - { src: "prometheus.yaml.j2", dest: "/etc/prometheus/prometheus.yaml" }
+    - { src: "web.yaml.j2", dest: "/etc/prometheus/web.yaml" }
+  notify: Reload Prometheus service
+

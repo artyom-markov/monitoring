@@ -1,0 +1,30 @@
+[Unit]
+Description=Prometheus service monitoring system and time series database
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=prometheus
+Group=prometheus
+
+Restart=on-failure
+
+ExecStart=/usr/local/bin/prometheus \
+--config.file /etc/prometheus/prometheus.yaml \
+# --web.config.file=/etc/prometheus/web.yaml \
+# --web.enable-lifecycle \
+--web.page-title="DigitalMS Prometheus Server" \
+--web.console.templates=/etc/prometheus/consoles \
+--web.console.libraries=/etc/prometheus/console_libraries \
+--storage.tsdb.path /var/lib/prometheus/ \
+--storage.tsdb.retention.time={{ storage_tsdb_retention_time }} \
+--storage.tsdb.retention.size={{ storage_tsdb_retention_size }}
+
+ExecReload=/bin/kill -HUP $MAINPID
+
+TimeoutStopSec=20s
+SendSIGKILL=no
+
+[Install]
+WantedBy=multi-user.target
+

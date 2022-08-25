@@ -1,0 +1,5 @@
+---
+
+- include: build.yaml
+
+- include: run_service.yaml

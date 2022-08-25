@@ -1,0 +1,13 @@
+---
+
+- name: Run blackbox service
+  community.general.docker_container:
+    name: blackbox
+    image: blackbox:latest
+    recreate: yes
+    restart_policy: always
+    state: started
+    command:
+      - "--config.file=/config/blackbox.yml"
+    ports:
+      - "9115:9115"

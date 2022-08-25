@@ -1,0 +1,7 @@
+---
+
+- include: network.yaml
+
+- include: timescaledb.yaml
+
+- include: promscale.yaml

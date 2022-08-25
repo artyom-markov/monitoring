@@ -1,0 +1,50 @@
+---
+
+- name: Make sure psycopg2 is installed
+  ansible.builtin.pip:
+    name: psycopg2-binary
+    state: present
+    executable: pip3
+
+- name: Create timescaledb volume
+  community.general.docker_volume:
+    name: timescaledb
+
+- name: Pull timescaledb image
+  community.docker.docker_image:
+    name: timescale/timescaledb-ha:{{ timescaledb_version }}
+    source: pull
+
+- name: Run database container
+  community.general.docker_container:
+    name: timescaledb
+    hostname: timescaledb
+    image: timescale/timescaledb-ha:{{ timescaledb_version }}
+    command: postgres -csynchronous_commit=off
+    restart_policy: always
+#    state: started
+#    restart: yes
+#    recreate: yes
+    volumes: timescaledb:/home/postgres/pgdata
+    ports:
+      - "5432:5432"
+    networks:
+      - name: promscale
+    env:
+      POSTGRES_DB={{ postgres_db }}
+      POSTGRES_USER={{ postgres_user }}
+      POSTGRES_PASSWORD={{ postgres_password }}
+
+- name: Check timescaledb if it responds
+  community.postgresql.postgresql_info:
+    login_host: "127.0.0.1"
+    db: "{{ postgres_db }}"
+    login_user: "{{ postgres_user }}"
+    login_password: "{{ postgres_password }}"
+    filter: ver*
+    port: "5432"
+  register: postgresql_result
+  until: postgresql_result is not failed
+  retries: 5
+  delay: 10
+  ignore_errors: yes

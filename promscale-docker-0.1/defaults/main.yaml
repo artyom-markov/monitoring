@@ -1,0 +1,11 @@
+---
+
+### Timescaledb vars ###
+
+timescaledb_version: pg14.5-ts2.7.2-latest
+postgres_db: "prometheus"
+postgres_user: "prometheus"
+postgres_password: "prometheus"
+
+### Promscale vars ###
+promscale_version: 0.13.0

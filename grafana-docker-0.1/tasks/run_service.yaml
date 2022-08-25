@@ -1,0 +1,17 @@
+---
+
+- name: Create grafana volume
+  community.general.docker_volume:
+    name: grafana
+
+- name: Run grafana service
+  community.general.docker_container:
+    name: grafana
+    image: grafana:latest
+    recreate: yes
+    restart_policy: always
+    state: started
+    volumes:
+      - "grafana:/var/lib/grafana"
+    ports:
+      - "80:3000"

@@ -1,0 +1,27 @@
+---
+
+- name: Pull promscale image
+  community.docker.docker_image:
+    name: timescale/promscale:{{ promscale_version }}
+    source: pull
+
+- name: Run promscale container
+  community.general.docker_container:
+    name: promscale
+    hostname: promscale
+    image: timescale/promscale:{{ promscale_version }}
+    restart_policy: always
+    command: >
+      -db.host=timescaledb
+      -db.user={{ postgres_db }}
+      -db.name={{ postgres_user }}
+      -db.password={{ postgres_password }}
+      -db.port=5432
+      -db.ssl-mode=allow
+#    state: started
+#    restart: yes
+#    recreate: yes
+    ports:
+      - "9201:9201"
+    networks:
+      - name: promscale

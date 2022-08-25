@@ -1,0 +1,4 @@
+---
+
+- name: Get services facts
+  ansible.builtin.service_facts:

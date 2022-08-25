@@ -1,0 +1,53 @@
+---
+
+- name: Create build directory
+  ansible.builtin.file:
+    path: "{{ build_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0700"
+
+- name: Copy static files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ build_dir }}"
+  with_items:
+    - home.json
+    - prometheus-dashboard.yml
+    - server-metrics-compact.json
+    - server-metrics-minimal.json
+    - blackbox-exporter-minimal.json
+
+- name: Copy config files
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: "Dockerfile.j2", dest: "/tmp/grafana/Dockerfile" }
+    - { src: "grafana.ini.j2", dest: "/tmp/grafana/grafana.ini" }
+
+- name: Remove grafana container
+  community.general.docker_container:
+    name: grafana
+    state: absent
+
+- name: Remove local image
+  community.docker.docker_image:
+    name: grafana
+    tag: latest
+    state: absent
+    force_absent: yes
+
+- name: Build grafana image
+  community.docker.docker_image:
+    name: grafana
+    tag: latest
+    build:
+      path: "{{ build_dir }}"
+    source: build
+
+- name: Remove build directory
+  ansible.builtin.file:
+    path: "{{ build_dir }}"
+    state: absent
